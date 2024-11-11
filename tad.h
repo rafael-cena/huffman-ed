@@ -1,6 +1,6 @@
 struct huffman {
 	int codigo, frequencia;
-	char *palavra, *codigoHuffman;
+	char palavra[25], codigoHuffman[25];
 };
 typedef struct huffman Huffman;
 
@@ -28,8 +28,8 @@ Huffman newHuffman (char *palavra) {
 	Huffman novo;
 	novo.codigo = n;
 	novo.frequencia = 0;
-	novo.palavra = palavra;
-	novo.codigoHuffman = "";
+	strcpy(novo.palavra, palavra);
+	strcpy(novo.codigoHuffman, "");
 	return novo;
 }
 

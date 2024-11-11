@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <conio2.h>
 #include <string.h>
+#include <stdlib.h>
 
 int n = 0;
 #include "tad.h"
 
 void exibeL (Lista *lista) {
 	Lista *L = lista;
+	printf("L");
 	while (L != NULL) {
-		printf("(%s, %d) -> ", L->no->registro.palavra, L->no->registro.codigo);
+		printf(" -> (%s, %d)", L->no->registro.palavra, L->no->registro.codigo);
 		L = L->prox;
 	}
 }
@@ -50,6 +52,21 @@ char* getPalavra (char frase[310], int j) {
 	return palavra;
 }
 
+void gerarBin (Lista *lista) {
+	Huffman item;
+	FILE *Ptr;
+	Lista *L = lista;
+	
+	Ptr = fopen("tabela.dat", "wb");
+	while (L != NULL) {
+		item = L->no->registro;
+		fwrite(&item, sizeof(Huffman), 1, Ptr);
+		printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
+		L = L->prox;
+	}
+	fclose(Ptr);
+}
+
 /*
 void exibeh (Tree A) {
 	static int x = -1;
@@ -73,9 +90,9 @@ void Executar () {
 	Tree *tree;
 	Huffman item;
 //	Pilha *P;
-	FILE *Ptr;
+//	FILE *Ptr;
 	
-	Ptr = fopen("tabela.dat", "wb");
+//	Ptr = fopen("tabela.dat", "wb");
 	frase = "amar e sonhar sonhar e viver viver e curtir curtir e amar cada um tera uma escolha cada um fara a escolha cada um escolhe a sua escolha"; // levaremos um tempo para crescer levaremos um tempo para amadurecer levaremos um tempo para entender levaremos um tempo para envelhecer levaremos um tempo para morrer";
 //	init(&P);
 	Init(&lista);
@@ -86,8 +103,8 @@ void Executar () {
 	for (i=0; frase[i] != '\0'; i++)
 		if (frase[i] == ' ')
 			item.frequencia += 1;
-	fwrite(&item, sizeof(Huffman), 1, Ptr);
-	printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
+//	fwrite(&item, sizeof(Huffman), 1, Ptr);
+//	printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
 	tree = CriaNo(item);
 	Push(&lista, tree);
 	
@@ -109,15 +126,15 @@ void Executar () {
 					item.frequencia += 1;
 				aux=getPalavra(frase, j);
 			}
-			printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
-			fwrite(&item, sizeof(Huffman), 1, Ptr);
+//			printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
+//			fwrite(&item, sizeof(Huffman), 1, Ptr);
 			tree = CriaNo(item);
 			Push(&lista, tree);
 		}
 		palavra=getPalavra(frase, i);
 	}
-	fclose(Ptr);
-	
+//	fclose(Ptr);
+	gerarBin(lista);
 	exibeL(lista);
 }
 
