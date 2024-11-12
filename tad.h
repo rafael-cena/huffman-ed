@@ -1,35 +1,47 @@
 struct huffman {
-	int codigo, frequencia;
-	char palavra[25], codigoHuffman[25];
+	int codigo, codigoHuffman[40];
+	char palavra[25];
 };
 typedef struct huffman Huffman;
 
 struct tree {
+	int frequencia, codigo;
 	struct tree *esq, *dir;
-	Huffman registro;
 };
 typedef struct tree Tree;
 
+struct floresta {
+	Tree *raiz;
+	struct floresta *prox;
+};
+typedef struct floresta Floresta;
+
 struct lista {
-	Tree *no;
+	Huffman registro;
 	struct lista *prox;
 };
 typedef struct lista Lista;
 
-Tree *CriaNo (Huffman reg) {
+Tree *CriaNo (int cod, int freq) {
 	Tree *no = (Tree*)malloc(sizeof(Tree));
-	no->registro = reg;
+	no->codigo = cod;
+	no->frequencia = freq;
 	no->esq=NULL;
 	no->dir=NULL;
 	return no;
 }
 
+Floresta *CriaArvore (Tree *no) {
+	Floresta *raiz = (Floresta*)malloc(sizeof(Floresta));
+	raiz->raiz = no;
+	raiz->prox = NULL;
+	return raiz;
+}
+
 Huffman newHuffman (char *palavra) {
 	Huffman novo;
 	novo.codigo = n;
-	novo.frequencia = 0;
 	strcpy(novo.palavra, palavra);
-	strcpy(novo.codigoHuffman, "");
 	return novo;
 }
 
@@ -85,12 +97,7 @@ char IsEmpty (Lista *L) {
 	return L == NULL;
 }
 
-Tree *Top (Lista *L) {
-	if (!IsEmpty(L))
-		return L->no;
-	return NULL;
-}
-
+/*
 void Push (Lista **L, Tree *no) {
 	Lista *nova, *aux, *ant;
 	nova = (Lista*)malloc(sizeof(Lista));
@@ -116,16 +123,104 @@ void Push (Lista **L, Tree *no) {
 		}
 	}
 }
+*/
 
-void Pop (Lista **L, Tree *no) {
+void Push(Lista **L, Huffman item) {
+	Lista *nova;
+	nova = (Lista*)malloc(sizeof(Lista));
+	nova->registro = item;
+	nova->prox = NULL;
+	
+	if (IsEmpty(*L))
+		*L = nova;
+	else {
+		nova->prox = *L;
+		(*L) = nova;
+	}
+}
+
+Huffman Pop (Lista **L) {
 	Lista *aux;
+	Huffman item;
 	if (!IsEmpty(*L)) {
-		no = (*L)->no;
+		item = (*L)->registro;
 		aux = *L;
 		*L = (*L)->prox;
 		free(aux);
 	}
+	return item;
+}
+
+//	TADFloresta
+void inicializar(Floresta **F) {
+	*F = NULL;
+}
+
+char vazia(Floresta *F) {
+	return F == NULL;
+}
+
+void inserirArvore(Floresta **F, Tree *no) {
+	Floresta *aux, *ant, *nova;
+	
+	nova = (Floresta*)malloc(sizeof(Floresta));
+	nova->raiz = no;
+	nova->prox = NULL;
+	
+	if (vazia(*F)) *F = nova;
 	else {
-		no = NULL;
+		if ((*F)->raiz->frequencia > nova->raiz->frequencia) {
+			nova->prox = *F;
+			*F = nova;
+		}
+		else {
+			ant=*F;
+			aux=ant->prox;
+			if (aux != NULL) {
+				while (aux->prox!=NULL && aux->raiz->frequencia <= nova->raiz->frequencia) {
+					ant = aux;
+					aux = aux->prox;
+				}
+				if (aux->raiz->frequencia < nova->raiz->frequencia) {
+					nova->prox = aux->prox;
+					ant->prox = nova;
+				}
+				else {
+					nova->prox=aux;
+					ant->prox = nova;
+				}
+			}
+			else {
+				if (ant->raiz->frequencia < nova->raiz->frequencia)
+					ant->prox = nova;
+				else {
+					nova->prox=ant;
+					*F = nova;
+				}
+			}
+		}
 	}
 }
+
+Tree *removerArvore (Floresta **F) {
+	Floresta *aux;
+	Tree *tree;
+	if (!vazia(*F)) {
+		tree = (*F)->raiz;
+		aux = *F;
+		*F = (*F)->prox;
+		free(aux);
+		return tree;
+	}
+	return NULL;
+}
+
+
+
+
+
+
+
+
+
+

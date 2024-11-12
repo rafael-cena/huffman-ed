@@ -10,7 +10,7 @@ void exibeL (Lista *lista) {
 	Lista *L = lista;
 	printf("L");
 	while (L != NULL) {
-		printf(" -> (%s, %d)", L->no->registro.palavra, L->no->registro.codigo);
+		printf(" -> (%s, %d)", L->registro.palavra, L->registro.codigo);
 		L = L->prox;
 	}
 }
@@ -31,11 +31,10 @@ char buscaPalavra (char *palavra, Lista *lista) {
 	Lista *aux;
 	aux=lista;
 	while (aux!=NULL) {
-		if (equal(aux->no->registro.palavra, palavra))
+		if (equal(aux->registro.palavra, palavra))
 			return 1;
 		aux=aux->prox;
 	}
-	
 	return 0;
 }
 
@@ -59,9 +58,9 @@ void gerarBin (Lista *lista) {
 	
 	Ptr = fopen("tabela.dat", "wb");
 	while (L != NULL) {
-		item = L->no->registro;
+		item = L->registro;
 		fwrite(&item, sizeof(Huffman), 1, Ptr);
-		printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
+		printf("%d\t|%s \t|%d\n", item.codigo, item.palavra, item.codigoHuffman);
 		L = L->prox;
 	}
 	fclose(Ptr);
@@ -81,6 +80,34 @@ void exibeh (Tree A) {
 	}
 }
 */
+
+int tamFloresta (Floresta *F) {
+	int i;
+	Floresta *aux = F;
+	i=0;
+	while (aux != NULL) {
+		i++; aux=aux->prox;
+	}
+	return i;
+}
+
+void montarArvore(Floresta **F) {
+	Tree *ant, *aux, *nova;
+	
+	while ((*F)->prox != NULL) {
+		ant = removerArvore(&*F);
+		aux = removerArvore(&*F);
+		
+		nova = CriaNo(-1, ant->frequencia+aux->frequencia);
+		nova->esq = ant;
+		nova->dir = aux;
+		
+		inserirArvore(&*F, nova);
+		printf("floresta: %d\n", tamFloresta(*F));
+	}
+	printf("\nArvore pronta\n");
+}
+
 void Executar () {
 	int i, j;
 	char *frase, *fraseAux;
@@ -89,24 +116,22 @@ void Executar () {
 	Lista *lista;
 	Tree *tree;
 	Huffman item;
-//	Pilha *P;
-//	FILE *Ptr;
-	
-//	Ptr = fopen("tabela.dat", "wb");
-	frase = "amar e sonhar sonhar e viver viver e curtir curtir e amar cada um tera uma escolha cada um fara a escolha cada um escolhe a sua escolha"; // levaremos um tempo para crescer levaremos um tempo para amadurecer levaremos um tempo para entender levaremos um tempo para envelhecer levaremos um tempo para morrer";
-//	init(&P);
+	Floresta *floresta;
+
+	frase = "amar e sonhar sonhar e viver viver e curtir curtir e amar cada um tera uma escolha cada um fara a escolha cada um escolhe a sua escolha levaremos um tempo para crescer levaremos um tempo para amadurecer levaremos um tempo para entender levaremos um tempo para envelhecer levaremos um tempo para morrer";
 	Init(&lista);
 	
 	//contagem de frequencia para " " (espaco)
 	item = newHuffman(" ");
+	tree = CriaNo(n, 0);
 	n+=1;
 	for (i=0; frase[i] != '\0'; i++)
 		if (frase[i] == ' ')
-			item.frequencia += 1;
-//	fwrite(&item, sizeof(Huffman), 1, Ptr);
-//	printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
-	tree = CriaNo(item);
-	Push(&lista, tree);
+			tree->frequencia += 1;
+	
+	Push(&lista, item);
+	inserirArvore(&floresta, tree);
+	
 	
 	i=0;
 	//contagem de frequencia para cada palavra, verificando se a palavra ja foi utilizada
@@ -116,24 +141,25 @@ void Executar () {
 		i += strlen(palavra)+1;
 		if (!buscaPalavra(palavra, lista)) {
 			item = newHuffman(palavra);
-			item.frequencia+=1;
+			tree = CriaNo(n, 0);
+			tree->frequencia+=1;
 			n+=1;
 			j=i;
 			aux=getPalavra(frase, j);
 			while (strlen(aux) > 0) {
 				j += strlen(aux)+1;
 				if (equal(palavra, aux))
-					item.frequencia += 1;
+					tree->frequencia += 1;
 				aux=getPalavra(frase, j);
 			}
-//			printf("%d\t|%s \t|%d\t|%s\n", item.codigo, item.palavra, item.frequencia, item.codigoHuffman);
-//			fwrite(&item, sizeof(Huffman), 1, Ptr);
-			tree = CriaNo(item);
-			Push(&lista, tree);
+			
+			Push(&lista, item);
+			inserirArvore(&floresta, tree);
 		}
 		palavra=getPalavra(frase, i);
 	}
-//	fclose(Ptr);
+	printf("floresta: %d\n", tamFloresta(floresta));
+	montarArvore(&floresta);
 	gerarBin(lista);
 	exibeL(lista);
 }
