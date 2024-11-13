@@ -45,6 +45,20 @@ Huffman newHuffman (char *palavra) {
 	return novo;
 }
 
+void exibeh (Tree *A) {
+	static int x = -1;
+	int i;
+	if (A != NULL) {
+		x++;
+		exibeh (A->dir);
+		for (i=0; i<5*x; i++) printf(" ");
+		if (A->codigo == -1) printf("(-, %d) \n",A->frequencia);
+		else printf("(%d, %d) \n",A->codigo,A->frequencia);
+		exibeh (A->esq);
+		x--;
+	}
+}
+
 //	TADPilha
 struct pilha {
 	Tree *info;
@@ -215,12 +229,17 @@ Tree *removerArvore (Floresta **F) {
 	return NULL;
 }
 
-
-
-
-
-
-
-
-
-
+void montarArvore(Floresta **F) {
+	Tree *ant, *aux, *nova;
+	
+	while ((*F)->prox != NULL) {
+		ant = removerArvore(&*F);
+		aux = removerArvore(&*F);
+		
+		nova = CriaNo(-1, ant->frequencia+aux->frequencia);
+		nova->esq = ant;
+		nova->dir = aux;
+		
+		inserirArvore(&*F, nova);
+	}
+}

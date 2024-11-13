@@ -4,7 +4,39 @@
 #include <stdlib.h>
 
 int n = 0;
+int cod[40];
 #include "tad.h"
+
+void alterarItem(int codigo, Lista *lista) {
+	Huffman item;
+	int i;
+	while (lista != NULL && lista->registro.codigo != codigo) lista = lista->prox;
+	if (lista != NULL) {
+		for (i=0; cod[i] != -1; i++) lista->registro.codigoHuffman[i] = cod[i];
+		cod[i] = -1;
+	}
+}
+
+void gerarHuffman (Tree *A, Lista *lista) {
+	static int x=0;
+	int i;
+	
+	if (A != NULL) {
+		cod[x] = 0;
+		x++;
+		gerarHuffman (A->esq, lista);
+		x--;
+		cod[x] = 2;
+		alterarItem(A->codigo, lista);
+		
+		cod[x] = 1;
+		x++;
+		gerarHuffman (A->dir, lista);
+		x--;
+		cod[x] = 2;
+		alterarItem(A->codigo, lista);
+	}
+}
 
 void exibeL (Lista *lista) {
 	Lista *L = lista;
@@ -54,58 +86,23 @@ char* getPalavra (char frase[310], int j) {
 void gerarBin (Lista *lista) {
 	Huffman item;
 	FILE *Ptr;
+	int i;
 	Lista *L = lista;
 	
 	Ptr = fopen("tabela.dat", "wb");
 	while (L != NULL) {
+		i=0;
 		item = L->registro;
 		fwrite(&item, sizeof(Huffman), 1, Ptr);
-		printf("%d\t|%s \t|%d\n", item.codigo, item.palavra, item.codigoHuffman);
+		printf("%d\t|%s \t|", item.codigo, item.palavra);
+		while (item.codigoHuffman[i] != 2) {		
+			printf("%d", item.codigoHuffman[i]);
+			i++;
+		}
+		printf("\n");
 		L = L->prox;
 	}
 	fclose(Ptr);
-}
-
-/*
-void exibeh (Tree A) {
-	static int x = -1;
-	int i;
-	if (A != NULL) {
-		x++;
-		exibeh (A->dir);
-		for (i=0; i<5*x; i++) printf(" ");
-		printf("(%d, %d) \n",A->cod,A->freq);
-		exibeh (A->esq);
-		n--;
-	}
-}
-*/
-
-int tamFloresta (Floresta *F) {
-	int i;
-	Floresta *aux = F;
-	i=0;
-	while (aux != NULL) {
-		i++; aux=aux->prox;
-	}
-	return i;
-}
-
-void montarArvore(Floresta **F) {
-	Tree *ant, *aux, *nova;
-	
-	while ((*F)->prox != NULL) {
-		ant = removerArvore(&*F);
-		aux = removerArvore(&*F);
-		
-		nova = CriaNo(-1, ant->frequencia+aux->frequencia);
-		nova->esq = ant;
-		nova->dir = aux;
-		
-		inserirArvore(&*F, nova);
-		printf("floresta: %d\n", tamFloresta(*F));
-	}
-	printf("\nArvore pronta\n");
 }
 
 void Executar () {
@@ -158,10 +155,10 @@ void Executar () {
 		}
 		palavra=getPalavra(frase, i);
 	}
-	printf("floresta: %d\n", tamFloresta(floresta));
 	montarArvore(&floresta);
+	gerarHuffman(floresta->raiz, lista);
 	gerarBin(lista);
-	exibeL(lista);
+	exibeh(floresta->raiz);
 }
 
 int main (void) {
