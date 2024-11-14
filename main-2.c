@@ -12,13 +12,14 @@ char* exibePalavra (Lista *L, int cod) {
 		if (L->registro.codigo == cod) return L->registro.palavra;
 		L = L->prox;
 	}
+	return NULL;
 }
 
 void exibef(Tree *raiz, Lista *L) {
+	char *palavra;
 	if (raiz != NULL) {
 		if (raiz->esq == NULL && raiz->dir == NULL) {
 			printf("%s", exibePalavra(L, raiz->codigo));
-			n++;
 		}
 		else 
 			if (cod[n] == 0) { //ramificacao a esquerda
