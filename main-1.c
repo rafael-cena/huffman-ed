@@ -2,9 +2,9 @@
 #include <conio2.h>
 #include <string.h>
 #include <stdlib.h>
-
+#define TF 40
 int n = 0;
-int cod[40];
+int cod[TF];
 #include "tad.h"
 
 void alterarItem(int codigo, Lista *lista) {
@@ -105,6 +105,81 @@ void gerarBin (Lista *lista) {
 	fclose(Ptr);
 }
 
+void zerarVet(int i) {
+	int j;
+	for (j=i; j<TF; j++) cod[j] = 0;
+}
+
+Huffman getItem (Lista *L, char *palavra) {
+	Huffman item;
+	while (L != NULL && L->registro.codigoHuffman) {
+		if (equal(palavra, L->registro.palavra))
+			return L->registro;
+		L = L->prox;
+	}
+	return item;
+}
+
+void fraseBin(Lista *lista) {
+	char *frase, *palavra;
+	Huffman item;
+	int i, j, k, l, codigoFrase[100];
+	Lista *L;
+	union byte Byte, bAux;
+	FILE *ptr;
+	
+	L = lista;	
+	frase = "viver cada escolha fara crescer e amadurecer";
+	k=0; j=0; i=0;
+	
+	palavra = "";
+	palavra = getPalavra(frase, j);
+	while (strlen(palavra) > 0) {
+		L = lista;
+		j += strlen(palavra)+1;
+		item = getItem(L, palavra);
+		for(k=0; item.codigoHuffman[k] != 2; k++, i++)
+			codigoFrase[i] = item.codigoHuffman[k];
+		codigoFrase[i] = 0;
+		i++;
+		palavra = getPalavra(frase, j);
+	}
+//	for (l=0; l<i; l++) printf("%d ", codigoFrase[l]);
+	zerarVet(i);
+	
+	ptr = fopen("frase.dat", "wb+");
+	fwrite(&i, sizeof(int), 1, ptr);
+	for (j=0; codigoFrase[j] != 2; j+=8) {
+		Byte.bi.b0 = codigoFrase[j];
+		Byte.bi.b1 = codigoFrase[j+1];
+		Byte.bi.b2 = codigoFrase[j+2];
+		Byte.bi.b3 = codigoFrase[j+3];
+		Byte.bi.b4 = codigoFrase[j+4];
+		Byte.bi.b5 = codigoFrase[j+5];
+		Byte.bi.b6 = codigoFrase[j+6];
+		Byte.bi.b7 = codigoFrase[j+7];
+		fwrite(&Byte.num, sizeof(char), 1, ptr);
+	}
+	rewind(ptr);
+	i=8;
+	fread(&j, sizeof(int), 1, ptr);
+	fread(&bAux.num, sizeof(char), 1, ptr);
+	while(!feof(ptr) && i<j) {
+		printf("%d", bAux.bi.b0);
+		printf("%d", bAux.bi.b1);
+		printf("%d", bAux.bi.b2);
+		printf("%d", bAux.bi.b3);
+		printf("%d", bAux.bi.b4);
+		printf("%d", bAux.bi.b5);
+		printf("%d", bAux.bi.b6);
+		printf("%d ", bAux.bi.b7);
+		i+=8;
+		fread(&bAux.num, sizeof(char), 1, ptr);
+	}
+		
+	fclose(ptr);
+}
+
 void Executar () {
 	int i, j;
 	char *frase, *fraseAux;
@@ -159,6 +234,7 @@ void Executar () {
 	gerarHuffman(floresta->raiz, lista);
 	gerarBin(lista);
 	exibeh(floresta->raiz);
+	fraseBin(lista);
 }
 
 int main (void) {
