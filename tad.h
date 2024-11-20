@@ -74,49 +74,6 @@ void exibeh (Tree *A) {
 	}
 }
 
-//	TADPilha
-struct pilha {
-	Tree *info;
-	struct pilha *prox;
-};
-typedef struct pilha Pilha;
-
-void init (Pilha **P) {
-	*P = NULL;
-}
-
-char isEmpty (Pilha *P) {
-	return P == NULL;
-}
-
-Tree *top (Pilha *P) {
-	if (!isEmpty(P))
-		return P->info;
-	return NULL;
-}
-
-void push (Pilha **P, Tree *no) {
-	Pilha *nova;
-	nova = (Pilha*)malloc(sizeof(Pilha));
-	nova->info = no;
-	nova->prox = *P;
-	*P = nova;
-}
-
-void pop (Pilha **P, Tree *no) {
-	Pilha *aux;
-	if (!isEmpty(*P)) {
-		no = (*P)->info;
-		aux = *P;
-		*P = (*P)->prox;
-		free(aux);
-	}
-	else {
-		no = NULL;
-	}
-}
-
-
 //	TADLista
 void Init (Lista **L) {
 	*L = NULL;
@@ -125,34 +82,6 @@ void Init (Lista **L) {
 char IsEmpty (Lista *L) {
 	return L == NULL;
 }
-
-/*
-void Push (Lista **L, Tree *no) {
-	Lista *nova, *aux, *ant;
-	nova = (Lista*)malloc(sizeof(Lista));
-	nova->no = no;
-	nova->prox = NULL;
-	
-	if (IsEmpty(*L))
-		*L = nova;
-	else {
-		aux = ant = *L;
-		while (aux->prox != NULL && aux->no->registro.frequencia <= nova->no->registro.frequencia) {
-			ant = aux;
-			aux = aux->prox;
-		}
-		if (aux->no->registro.frequencia < nova->no->registro.frequencia) {
-			nova->prox = aux->prox;
-			aux->prox = nova;
-		}
-		else {
-			nova->prox = aux;
-			if (aux == ant) *L = nova;
-			else ant->prox = nova;
-		}
-	}
-}
-*/
 
 void Push(Lista **L, Huffman item) {
 	Lista *nova;
@@ -179,6 +108,7 @@ Huffman Pop (Lista **L) {
 	}
 	return item;
 }
+
 
 //	TADFloresta
 void inicializar(Floresta **F) {
@@ -258,3 +188,83 @@ void montarArvore(Floresta **F) {
 		inserirArvore(&*F, nova);
 	}
 }
+
+
+//tabela
+void moldUp () {
+	int x, y;
+	gotoxy(1,1);
+	printf("%c", 201);
+	gotoxy(50,1);
+	printf("%c", 187);
+	
+	gotoxy(1,3);
+	printf("%c", 204);
+	gotoxy(50,3);
+	printf("%c", 185);
+	
+	for (x=2, y=1; x<50; x++) {
+		gotoxy(x,y);
+		printf("%c", 205);
+		gotoxy(x, y+2);
+		printf("%c", 205);
+	}
+	gotoxy(12,1);
+	printf("%c", 203);
+	gotoxy(28,1);
+	printf("%c", 203);
+	
+	gotoxy(12,3);
+	printf("%c", 206);
+	gotoxy(28,3);
+	printf("%c", 206);
+	
+	gotoxy(1,2);
+	printf("%c  Codigo  %c", 186, 186);
+	gotoxy(17,2);
+	printf("Palavra    %c", 186);
+	gotoxy(31,2);
+	printf("Codigo de Huffman  %c", 186);
+}
+
+void mold (int y, Huffman item) {
+	int i;
+	gotoxy(1,y); printf("%c", 186);
+	gotoxy(12,y); printf("%c", 186);
+	gotoxy(28,y); printf("%c", 186);
+	gotoxy(50,y); printf("%c", 186);
+	
+	gotoxy(6, y);
+	printf("%d", item.codigo);
+	gotoxy(16, y);
+	printf("%s", item.palavra);
+	gotoxy(35,y);
+	i=0;
+	while (item.codigoHuffman[i] != 2) {		
+		printf("%d", item.codigoHuffman[i]);
+		i++;
+	}
+}
+
+void moldLow (int y) {
+	int x;
+	gotoxy(1,y);
+	printf("%c", 200);
+	gotoxy(50,y);
+	printf("%c", 188);
+	
+	for (x=2; x<50; x++) {
+		gotoxy(x,y);
+		printf("%c", 205);
+	}
+	
+	
+	gotoxy(12,y);
+	printf("%c", 202);
+	gotoxy(28,y);
+	printf("%c\n\n", 202);
+}
+
+
+
+

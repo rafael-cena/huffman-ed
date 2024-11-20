@@ -88,21 +88,18 @@ void gerarBin (Lista *lista) {
 	FILE *Ptr;
 	int i;
 	Lista *L = lista;
-	
+	moldUp();
+	i=4;
 	Ptr = fopen("tabela.dat", "wb");
 	while (L != NULL) {
-		i=0;
 		item = L->registro;
 		fwrite(&item, sizeof(Huffman), 1, Ptr);
-		printf("%d\t|%s \t|", item.codigo, item.palavra);
-		while (item.codigoHuffman[i] != 2) {		
-			printf("%d", item.codigoHuffman[i]);
-			i++;
-		}
-		printf("\n");
+		mold(i, item);
+		i++;
 		L = L->prox;
 	}
 	fclose(Ptr);
+	moldLow(i);
 }
 
 void zerarVet(int i) {
@@ -144,7 +141,6 @@ void fraseBin(Lista *lista) {
 		i++;
 		palavra = getPalavra(frase, j);
 	}
-//	for (l=0; l<i; l++) printf("%d ", codigoFrase[l]);
 	zerarVet(i);
 	
 	ptr = fopen("frase.dat", "wb+");
@@ -164,6 +160,8 @@ void fraseBin(Lista *lista) {
 	i=8;
 	fread(&j, sizeof(int), 1, ptr);
 	fread(&bAux.num, sizeof(char), 1, ptr);
+	printf("\n\nFrase original: '%s'\n", frase);
+	printf("Frase codificada: ");
 	while(!feof(ptr) && i<j) {
 		printf("%d", bAux.bi.b0);
 		printf("%d", bAux.bi.b1);
@@ -176,8 +174,8 @@ void fraseBin(Lista *lista) {
 		i+=8;
 		fread(&bAux.num, sizeof(char), 1, ptr);
 	}
-		
 	fclose(ptr);
+	printf("\n");
 }
 
 void Executar () {

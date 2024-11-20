@@ -12,23 +12,21 @@ char* exibePalavra (Lista *L, int cod) {
 		if (L->registro.codigo == cod) return L->registro.palavra;
 		L = L->prox;
 	}
-	return NULL;
 }
 
-void exibef(Tree *raiz, Lista *L) {
-	char *palavra;
+void exibef(Tree *raiz, Lista *L, char frase[]) {
 	if (raiz != NULL) {
 		if (raiz->esq == NULL && raiz->dir == NULL) {
-			printf("%s", exibePalavra(L, raiz->codigo));
+			strcat(frase, exibePalavra(L, raiz->codigo));
 		}
 		else 
 			if (cod[n] == 0) { //ramificacao a esquerda
 				n++;
-				exibef(raiz->esq, L);
+				exibef(raiz->esq, L, frase);
 			}
 			else {				//ramificacao a direita
 				n++;
-				exibef(raiz->dir, L);
+				exibef(raiz->dir, L, frase);
 			}
 	}
 }
@@ -59,7 +57,7 @@ void pVet() {
 
 void refTree (Tree **raiz, Huffman item, int i) {
 	if (item.codigoHuffman[i] != 2) {
-		if (item.codigoHuffman[i] == 0) { //ramificacao a esquerda
+		if (item.codigoHuffman[i] == 0) {
 			if ((*raiz)->esq == NULL)
 				(*raiz)->esq = CriaNo(-1, 0);
 			refTree(&(*raiz)->esq, item, i+1);
@@ -81,35 +79,34 @@ void Exec() {
 	Lista *L;
 	Floresta *F;
 	int i;
+	char frase[100];
 	
 	Init(&L);
 	inicializar(&F);
 	
 	tree = CriaNo(-1,0);
 	inserirArvore(&F, tree);
-	
+	moldUp();
+	i=4;
 	Ptr = fopen("tabela.dat", "rb");
 	fread(&item, sizeof(Huffman), 1, Ptr);
 	while (!feof(Ptr)) {
-		i=0;
-		printf("%d\t|%s \t|", item.codigo, item.palavra);
-		while (item.codigoHuffman[i] != 2) {		
-			printf("%d", item.codigoHuffman[i]);
-			i++;
-		}
-		printf("\n");
-		i=0;
-		refTree(&F->raiz, item, i);
+		mold(i, item);
+		i++;
+		refTree(&F->raiz, item, 0);
 		Push(&L, item);
 		fread(&item, sizeof(Huffman), 1, Ptr);
 	}
 	fclose(Ptr);
+	moldLow(i);
 	
 	exibeh(F->raiz);
 	pVet();
 	i=n;
 	n=0;
-	while (n<i) exibef(F->raiz, L);
+	while (n<i) 
+		exibef(F->raiz, L, frase);
+	printf("\nFrase decodificada: '%s'\n", frase);
 }
 
 int main (void) {
